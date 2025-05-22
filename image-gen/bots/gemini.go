@@ -52,6 +52,25 @@ func (b *Bot) ListModels() {
 	fmt.Println("Exiting")
 }
 
+func (b *Bot) GeneratePrompt(prompt string) string {
+	ctx := context.Background()
+	client := b.CreateClient(ctx)
+
+	result, err := client.Models.GenerateContent(
+		ctx,
+		"gemini-2.0-flash",
+		genai.Text(prompt),
+		nil,
+	)
+
+	if err != nil {
+		log.Fatalf("failed to generate text: %v", err)
+	}
+
+	fmt.Println("Generated Prompt:", result.Text())
+	return result.Text()
+}
+
 // GenImage uses Gemini to generate an image for twitter bots
 func (b *Bot) GenImage(prompt string) {
 	ctx := context.Background()

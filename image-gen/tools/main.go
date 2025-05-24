@@ -29,7 +29,10 @@ func main() {
 				Name:  "atat",
 				Usage: "Generate ATAT Image",
 			},
-
+			&cli.BoolFlag{
+				Name:  "custom",
+				Usage: "Custom prompt for image generation",
+			},
 			&cli.BoolFlag{
 				Name:  "list",
 				Usage: "List Gemini Models",
@@ -37,6 +40,14 @@ func main() {
 			&cli.BoolFlag{
 				Name:  "drawthing",
 				Usage: "Generate Drawthing Image",
+			},
+			&cli.BoolFlag{
+				Name:  "high",
+				Usage: "Enabled high quality mode",
+			},
+			&cli.StringFlag{
+				Name:  "prompt",
+				Usage: "Custom prompt for image generation",
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
@@ -93,25 +104,30 @@ func main() {
 
 				var prompt string
 
-				if !c.Bool("generate") {
-					fmt.Println("No prompt provided, using default.")
-					prompt = "Generate me a dramatic, realistic star wars image of an ATAT on hoth. A large moon is looming in the background. The lighting is very harsh, creating a tense atmosphere. The image should give off serious vibes."
-				} else {
+				if c.Bool("generate") {
 					fmt.Println("Generate prompt defined.")
 					bot, err := LoadGeminiAPIKey()
 					if err != nil {
 						log.Fatalf("Error loading Gemini API key: %v", err)
 					}
-					prompt = bot.GeneratePrompt("You are a bot that generates prompts for drawthing. Generate me a prompt that is a description for a star wars image. It should be empire focused, maybe a ship or character, or even a scene. Return only the prompt, no other text.")
-					prompt += " The image should be dramatic, realistic, and give off serious vibes. The lighting should be very harsh, creating a tense atmosphere."
+					prompt = bot.GeneratePrompt("You are a bot that generates prompts for drawthing. Return only the prompt, no other text." + os.Getenv("DEFAULT_PROMPT") + "The image should be dramatic, realistic, and give off serious vibes. The lighting should be very harsh, creating a tense atmosphere.")
+
+				} else if c.String("prompt") != "" {
+					fmt.Println("Custom prompt provided.")
+					prompt = c.String("prompt")
+				} else if os.Getenv("PROMPT") != "" {
+					fmt.Println("No prompt provided, using example.")
+					prompt = os.Getenv("EXAMPLE_PROMPT")
 				}
 
 				fmt.Printf("Prompt: %s\n", prompt)
 
-				if err := dt.GenerateAndSave(prompt); err != nil {
+				if err := dt.GenerateAndSave(prompt, os.Getenv("DEFAULT_NEGATIVE_PROMPT")); err != nil {
 					fmt.Printf("Error: %v\n", err)
 					os.Exit(1)
 				}
+				return nil
+
 			}
 
 			return nil

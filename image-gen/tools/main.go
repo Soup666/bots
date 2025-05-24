@@ -30,20 +30,12 @@ func main() {
 				Usage: "Generate ATAT Image",
 			},
 			&cli.BoolFlag{
-				Name:  "custom",
-				Usage: "Custom prompt for image generation",
-			},
-			&cli.BoolFlag{
 				Name:  "list",
 				Usage: "List Gemini Models",
 			},
 			&cli.BoolFlag{
 				Name:  "drawthing",
 				Usage: "Generate Drawthing Image",
-			},
-			&cli.BoolFlag{
-				Name:  "high",
-				Usage: "Enabled high quality mode",
 			},
 			&cli.StringFlag{
 				Name:  "prompt",
